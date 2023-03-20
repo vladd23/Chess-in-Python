@@ -33,10 +33,23 @@ class Game:
                 if self.board.squares[row][col].has_piece():
                     piece = self.board.squares[row][col].piece
 
-                    # all pieces exept the one we are gragging
+                    # all pieces except the one we are dragging
                     if piece is not self.dragger.piece:
                         piece.set_texture(size=80)
                         img = pygame.image.load(piece.texture)
                         img_center = col * squareSize + squareSize // 2, row * squareSize + squareSize // 2
                         piece.textureRectangle = img.get_rect(center=img_center)
                         surface.blit(img, piece.textureRectangle)
+
+    def show_moves(self, surface):
+        if self.dragger.dragging:
+            piece = self.dragger.piece
+            # loop all valid moves
+            for move in piece.moves:
+                # color
+                color = '#C86464' if (move.final.row + move.final.col) % 2 == 0 else '#C84646'
+                # rect
+                rectangle = (move.final.col * squareSize, move.final.row * squareSize, squareSize,
+                             squareSize)  # start, start, size, size
+                # blit
+                pygame.draw.rect(surface, color, rectangle)  # surface, color, rectangle
