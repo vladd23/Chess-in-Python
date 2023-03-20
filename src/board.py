@@ -48,6 +48,30 @@ class Board:
         Calculate all the possible moves of an specific piece on a specific pos
         """
 
+        def pawn_moves():
+            steps = 1 if piece.moved else 2
+
+            # vertical moves
+            start = row + piece.dir
+            end = row + (piece.dir * (1+steps))
+            # from row 5 to row 3 in case of the white pieces and from r2 to r4
+            for move_row in range(start, end, piece.dir):
+                if Square.in_range(move_row):
+                    if self.squares[move_row][col].is_empty():
+                        # create initial and final move squares
+                        initial = Square(row, col)
+                        final = Square(move_row, col)
+                        # create new move
+                        move = Move(initial, final)
+                        piece.add_move(move)
+                    else:
+                        # blocked, piece in front of us
+                        break
+                else:
+                    # not on the board
+                    break
+            # diagonal moves
+
         def knight_moves():
             # 8 possible moves
             possible_knight_moves = [
@@ -76,7 +100,7 @@ class Board:
                         # append new valid move to the list
 
         if isinstance(piece, Pawn):
-            pass
+            pawn_moves()
         elif isinstance(piece, Knight):
             knight_moves()
         elif isinstance(piece, Bishop):
