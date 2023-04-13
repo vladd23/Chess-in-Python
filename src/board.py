@@ -53,7 +53,7 @@ class Board:
         temporary_piece = copy.deepcopy(piece)
         temporary_board = copy.deepcopy(self)
 
-        temporary_board.move(temporary_piece, move)
+        temporary_board.move(temporary_piece, move, testing=True)
         for row in range(rows):
             for col in range(cols):
                 if temporary_board.squares[row][col].has_enemy_piece(piece.color):
@@ -65,7 +65,7 @@ class Board:
 
         return False
 
-    def move(self, piece, move):
+    def move(self, piece, move, testing=False):
         initial = move.initial
         final = move.final
 
@@ -77,8 +77,7 @@ class Board:
         # king castling
 
         if isinstance(piece, King):
-            if not self.in_check(piece, move):
-                if self.castling(initial, final):
+                if self.castling(initial, final) and not testing:
                     diff = final.col - initial.col
                     rook = piece.left_rook if (diff < 0) else piece.right_rook
                     self.move(rook, rook.moves[-1])  # the last move saved in the valid moves for castling for king
@@ -209,9 +208,11 @@ class Board:
                         if bool:
                             if not self.in_check(piece, move):
                                 piece.add_move(move)
+                            else: break
 
                         else:
-                            piece.add_move(move)                        # append new valid move to the list
+                            # append new valid move to the list
+                            piece.add_move(move)
 
             # castling moves
             if not piece.moved:
