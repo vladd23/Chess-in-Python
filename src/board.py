@@ -55,6 +55,11 @@ class Board:
         self.squares[initial.row][initial.col].piece = None
         self.squares[final.row][final.col].piece = piece
 
+        # pawn promotion
+
+        if isinstance(piece, Pawn):
+            self.check_promotion(piece, final)
+
         # move
         piece.moved = True
 
@@ -225,3 +230,8 @@ class Board:
             ])
         elif isinstance(piece, King):
             king_moves()
+
+    def check_promotion(self, piece, final):
+        if final.row == 0 or final.row == 7:
+            self.squares[final.row][final.col].piece = Queen(piece.color)
+

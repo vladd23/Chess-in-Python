@@ -9,6 +9,8 @@ from src.dragger import Dragger
 class Game:
 
     def __init__(self):
+        self.next_player = 'white'
+        self.hovered_square = None
         self.board = Board()
         self.dragger = Dragger()
 
@@ -47,9 +49,47 @@ class Game:
             # loop all valid moves
             for move in piece.moves:
                 # color
-                color = '#C86464' if (move.final.row + move.final.col) % 2 == 0 else '#C84646'
+                color = '#02f016' if (move.final.row + move.final.col) % 2 == 0 else '#0b8a16'
                 # rect
                 rectangle = (move.final.col * squareSize, move.final.row * squareSize, squareSize,
                              squareSize)  # start, start, size, size
                 # blit
                 pygame.draw.rect(surface, color, rectangle)  # surface, color, rectangle
+
+    def show_last_move(self, surface):
+        if self.board.last_move:
+            initial = self.board.last_move.initial
+            final = self.board.last_move.final
+
+            for pos in [initial, final]:
+                # color
+                color = (244, 247, 116) if (pos.row + pos.col) % 2 == 0 else (172, 195, 51)
+                # rect
+                rectangle = (pos.col * squareSize,pos.row * squareSize, squareSize,
+                             squareSize)  # start, start, size, size
+                # blit
+                pygame.draw.rect(surface, color, rectangle)  # surface, color, rectangle
+
+    def show_hover(self, surface):
+        if self.hovered_square:
+            # color
+            color = (180, 180, 180)
+            # rect
+            rectangle = (self.hovered_square.col * squareSize, self.hovered_square.row * squareSize, squareSize,
+                         squareSize)  # start, start, size, size
+            # blit
+            pygame.draw.rect(surface, color, rectangle, width=3)  # surface, color, rectangle
+
+    # other methods
+
+    def next_turn(self):
+        if self.next_player == 'white':
+            self.next_player = 'black'
+        elif self.next_player == 'black':
+            self.next_player = 'white'
+
+    def set_hover(self, row, col):
+        self.hovered_square = self.board.squares[row][col]
+
+    def reset(self):
+        self.__init__()
