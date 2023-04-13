@@ -46,6 +46,9 @@ class Board:
         # queen
         self.squares[row_other][3] = Square(row_other, 3, Queen(color))
 
+    def castling(self, initial, final):
+        return abs(initial.col - final.col) == 2
+
     def move(self, piece, move):
         initial = move.initial
         final = move.final
@@ -54,6 +57,14 @@ class Board:
         # this is the position our piece is sitting at the moment
         self.squares[initial.row][initial.col].piece = None
         self.squares[final.row][final.col].piece = piece
+
+        # king castling
+
+        if isinstance(piece, King):
+            if self.castling(initial, final):
+                diff = final.col-initial.col
+                rook = piece.left_rook if (diff <0) else piece.right_rook
+                self.move(rook, rook.moves[-1])  # the last move saved in the valid moves for castling for king
 
         # pawn promotion
 
@@ -165,6 +176,62 @@ class Board:
                         move = Move(initial, final)
                         piece.add_move(move)
                         # append new valid move to the list
+
+            # castling moves
+            if not piece.moved:
+
+                # queen castling
+                left_rook = self.squares[row][0].piece
+                if isinstance(left_rook, Rook):
+                    if not left_rook.moved:
+                        # if between the rook and king there are no pieces
+                        for c in range(1,4):
+                            if self.squares[row][c].has_piece():
+                                break
+
+                            if c == 3:
+                                # it works only for king piece
+                                # add left rook to king
+                                piece.left_rook = left_rook
+
+                                # rook move
+                                initial = Square(row, 0)
+                                final = Square(row, 3)
+                                rook_move = Move(initial, final)
+                                left_rook.add_move(rook_move)
+
+                                # king move
+                                initial = Square(row, col)
+                                final = Square(row, 2)
+                                king_move = Move(initial, final)
+                                piece.add_move(king_move)
+
+                # king castling
+                right_rook = self.squares[row][7].piece
+                if isinstance(right_rook, Rook):
+                    if not right_rook.moved:
+                        # if between the rook and king there are no pieces
+                        for c in range(5, 7):
+                            if self.squares[row][c].has_piece():
+                                break
+
+                            if c == 6:
+                                # it works only for king piece
+                                # add left rook to king
+                                piece.right_rook = right_rook
+
+                                # rook move
+                                initial = Square(row, 7)
+                                final = Square(row, 5)
+                                rook_move = Move(initial, final)
+                                right_rook.add_move(rook_move)
+
+                                # king move
+                                initial = Square(row, col)
+                                final = Square(row, 6)
+                                king_move = Move(initial, final)
+                                piece.add_move(king_move)
+
 
         # for queen, bishop and rook
         def straightline_move(increments_list):
