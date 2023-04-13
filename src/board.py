@@ -7,6 +7,7 @@ from src.move import Move
 class Board:
     def __init__(self):
         self.squares = [[0, 0, 0, 0, 0, 0, 0, 0] for col in range(cols)]
+        self.last_move = None
         self._create()
         self._add_pieces('white')
         self._add_pieces('black')
@@ -44,6 +45,27 @@ class Board:
 
         # queen
         self.squares[row_other][3] = Square(row_other, 3, Queen(color))
+
+    def move(self, piece, move):
+        initial = move.initial
+        final = move.final
+
+        # update the console board
+        # this is the position our piece is sitting at the moment
+        self.squares[initial.row][initial.col].piece = None
+        self.squares[final.row][final.col].piece = piece
+
+        # move
+        piece.moved = True
+
+        # clear valid moves
+        piece.clear_valid_moves()
+
+        # set last move
+        self.last_move = move
+
+    def valid_move(self, piece, move):
+        return move in piece.moves
 
     def calc_moves(self, piece, row, col):
         """
@@ -91,14 +113,14 @@ class Board:
         def knight_moves():
             # 8 possible moves
             possible_knight_moves = [
-                (row - 1, col + 0),  # up
-                (row - 1, col + 1),  # up right
-                (row + 0, col + 1),  # right
-                (row + 1, col + 1),  # down right
-                (row + 1, col + 0),  # down
-                (row + 1, col - 1),  # down left
-                (row + 0, col - 1),  # left
-                (row - 1, col - 1)   # up left
+                (row + 2, col - 1),
+                (row + 2, col + 1),
+                (row + 1, col - 2),
+                (row + 1, col + 2),
+                (row - 1, col - 2),
+                (row - 1, col + 2),
+                (row - 2, col - 1),
+                (row - 2, col + 1)
             ]
 
             for possible_move in possible_knight_moves:
@@ -139,6 +161,7 @@ class Board:
                         piece.add_move(move)
                         # append new valid move to the list
 
+        # for queen, bishop and rook
         def straightline_move(increments_list):
             for inc in increments_list:
                 row_inc, col_inc = inc

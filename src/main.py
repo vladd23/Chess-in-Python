@@ -3,6 +3,8 @@ import sys
 
 from constants import *
 from game import Game
+from src.move import Move
+from src.square import Square
 
 
 class Main:
@@ -58,8 +60,27 @@ class Main:
                         game.show_pieces(screen)
                         dragger.update_blit(screen)
 
-                        # for click release
+                # for click release
                 elif event.type == pygame.MOUSEBUTTONUP:
+
+                    if dragger.dragging:
+                        dragger.update_mouse(event.pos)
+                        released_row = dragger.mouseY // squareSize
+                        released_col = dragger.mouseX // squareSize
+
+                        # create possible move
+                        initial = Square(dragger.initial_row, dragger.initial_col)
+                        final = Square(released_row, released_col)
+                        move = Move(initial, final)
+
+                        # if valid move
+                        if board.valid_move(dragger.piece, move):
+                            # move the piece
+                            board.move(dragger.piece, move)
+                            # show methods
+                            game.show_background(screen)
+                            game.show_pieces(screen)
+
                     dragger.undrag_piece()
 
                 if event.type == pygame.QUIT:
